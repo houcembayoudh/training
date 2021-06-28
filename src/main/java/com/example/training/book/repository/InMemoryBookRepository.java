@@ -1,5 +1,6 @@
 package com.example.training.book.repository;
 
+import com.example.training.book.exception.BookNotFoundException;
 import com.example.training.book.model.Book;
 import io.vavr.control.Either;
 
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 public class InMemoryBookRepository implements BookRepository {
 
-    List<Book> bookList = new ArrayList<Book>() ;
+    List<Book> bookList = new ArrayList<>() ;
 
     public InMemoryBookRepository() {
         this.bookList .add(new Book("book 1", "ref001"));
@@ -40,24 +41,34 @@ public class InMemoryBookRepository implements BookRepository {
     }
 
     @Override
-    public Optional<Book> updateBook(Book book) {
+    public Either<BookNotFoundException, Book> updateBook(Book book) {
 
-        int indexSearch = bookList.indexOf(book);
-        bookList.set(indexSearch, book);
+            int indexSearch = bookList.indexOf(book);
+            if (indexSearch != -1) {
+                bookList.set(indexSearch, book);
+                return Either.right(book);
+            }else{
+                return Either.left(new BookNotFoundException("Book not found"));
+            }
 
-        return Optional.empty();
     }
 
     @Override
-    public Either<Exception, Book> deleteBook(Book book) {
+    public Either<BookNotFoundException, Book> deleteBook(Book book) {
 
-        try {
-            int indexSearch = bookList.indexOf(book);
-            Book updated = bookList.remove(indexSearch);
-            return Either.right(updated);
-        } catch (Exception e) {
-            return Either.left(e);
+        int indexSearch = bookList.indexOf(book);
+        if (indexSearch != -1) {
+            Book removed = bookList.remove(indexSearch);
+            return Either.right(removed);
+        }else{
+            return Either.left(new BookNotFoundException("Book not found"));
         }
 
     }
+
+
+
+
+
 }
+

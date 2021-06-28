@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
 public class BeanConfigurations {
 
     @Bean
-    public InMemoryBookRepository getBookRepository(){
+    public BookRepository getBookRepository(){
 
         return new InMemoryBookRepository();
     }
     @Bean
-    public BookService getBookService(InMemoryBookRepository bookRepository){
+    public BookService getBookService(BookRepository bookRepository){
         return new BookService( bookRepository);
     }
 }

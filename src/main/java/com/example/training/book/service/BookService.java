@@ -1,6 +1,8 @@
 package com.example.training.book.service;
 
+import com.example.training.book.exception.BookNotFoundException;
 import com.example.training.book.model.Book;
+import com.example.training.book.repository.BookRepository;
 import com.example.training.book.repository.InMemoryBookRepository;
 import io.vavr.control.Either;
 
@@ -10,34 +12,34 @@ import java.util.Optional;
 
 public class BookService {
 
-    private final InMemoryBookRepository inMemoryBookRepository;
+    private final BookRepository bookRepository;
 
-    public BookService(InMemoryBookRepository inMemoryBookRepository) {
-        this.inMemoryBookRepository = inMemoryBookRepository;
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
 
     public Collection<Book> fetchAllBooks() {
-        return inMemoryBookRepository.fetchAllBooks();
+        return bookRepository.fetchAllBooks();
     }
 
 
     public Optional<Book> getBookByReference(String reference) {
-        return inMemoryBookRepository.getBookByReference(reference);
+        return bookRepository.getBookByReference(reference);
     }
 
 
     public Optional<Book> addBook(Book book) {
-        return inMemoryBookRepository.addBook(book);
+        return bookRepository.addBook(book);
     }
 
 
-    public Optional<Book> updateBook(Book book) {
-        return inMemoryBookRepository.updateBook(book);
+    public Either<BookNotFoundException, Book> updateBook(Book book) {
+        return bookRepository.updateBook(book);
     }
 
 
-    public Either<Exception, Book> deleteBook(Book book) {
-        return inMemoryBookRepository.deleteBook(book);
+    public Either<BookNotFoundException, Book> deleteBook(Book book) {
+        return bookRepository.deleteBook(book);
     }
 }
