@@ -1,9 +1,9 @@
 package com.example.training.book.service;
 
+import com.example.training.book.exception.BookException;
 import com.example.training.book.exception.BookNotFoundException;
 import com.example.training.book.model.Book;
 import com.example.training.book.repository.BookRepository;
-import com.example.training.book.repository.InMemoryBookRepository;
 import io.vavr.control.Either;
 
 import java.util.Collection;
@@ -29,7 +29,7 @@ public class BookService {
     }
 
 
-    public Optional<Book> addBook(Book book) {
+    public BookRepository.BookSavingRecord addBook(Book book) {
         return bookRepository.addBook(book);
     }
 
@@ -39,7 +39,5 @@ public class BookService {
     }
 
 
-    public Either<BookNotFoundException, Book> deleteBook(Book book) {
-        return bookRepository.deleteBook(book);
-    }
+
 }

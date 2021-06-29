@@ -1,6 +1,6 @@
 package com.example.training.book.exception;
 
-public final class BookNotFoundException extends RuntimeException {
+public final class BookNotFoundException extends BookException {
     public BookNotFoundException() {
         super();
     }

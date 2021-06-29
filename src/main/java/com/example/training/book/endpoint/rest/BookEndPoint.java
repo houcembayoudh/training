@@ -37,11 +37,10 @@ public class BookEndPoint {
 
     @PostMapping("/addBook")
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        return
-                bookService
-                        .addBook(book)
-                        .map(ResponseEntity::ok)
-                        .orElse(ResponseEntity.internalServerError().build());
+
+       return ResponseEntity.ok(bookService.addBook(book).book());
+
+
 
     }
 
@@ -60,7 +59,7 @@ public class BookEndPoint {
                         ResponseEntity::ok
                 );
     }
-
+/*
     @DeleteMapping("/deleteBook")
     public ResponseEntity<Book> deleteBook(@RequestBody Book book) {
         return
@@ -76,7 +75,7 @@ public class BookEndPoint {
                                 .build() ,
                         ResponseEntity::ok
                 ) ;
-    }
+    }*/
 
 
 }
