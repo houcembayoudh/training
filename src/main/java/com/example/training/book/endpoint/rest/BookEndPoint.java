@@ -1,12 +1,11 @@
 package com.example.training.book.endpoint.rest;
 
-import com.example.training.book.model.Book;
 import com.example.training.book.repository.BookRepository;
 import com.example.training.book.service.BookService;
+import com.example.training.book.model.Book;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
-import java.util.List;
 
 
 @RestController
@@ -19,13 +18,13 @@ public class BookEndPoint {
         this.bookService = bookService;
     }
 
-    @GetMapping("fetchAllBooks")
+    @GetMapping("books")
     public ResponseEntity <Collection<Book>> fetchAllBooks() {
         return ResponseEntity.ok(bookService.fetchAllBooks());
     }
 
-    @GetMapping("/getBookByReference")
-    public ResponseEntity<Book> getBookByReference(@RequestParam String reference) {
+    @GetMapping("/books/{reference}")
+    public ResponseEntity<Book> getBookByReference(@PathVariable(required = true, name = "reference") String reference) {
         return
                 bookService
                         .getBookByReference(reference)
@@ -33,7 +32,7 @@ public class BookEndPoint {
                         .orElse(ResponseEntity.notFound().build()) ;
     }
 
-    @PostMapping("/addBook")
+    @PostMapping("/books")
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
 
         final var result = bookService.addBook(book);
@@ -44,7 +43,7 @@ public class BookEndPoint {
         return ResponseEntity.ok(result.book());
     }
 
-    @PutMapping("/updateBook")
+    @PutMapping("/books")
     public ResponseEntity<Book> updateBook(@RequestBody Book book) {
         return bookService
                 .updateBook(book)
@@ -59,9 +58,9 @@ public class BookEndPoint {
                         ResponseEntity::ok
                 );
     }
-    @DeleteMapping("/deleteBook/{reference}")
+    @DeleteMapping("/books/{reference}")
     public ResponseEntity<Book> deleteBookByReference(
-            @RequestParam(required = true, name = "reference")
+            @PathVariable(required = true, name = "reference")
                     String reference) {
         return
                 bookService
@@ -78,12 +77,13 @@ public class BookEndPoint {
                 ) ;
     }
 
-    @PostMapping("/saveListOfBooks")
+    @PostMapping("/books/all")
     public ResponseEntity<BookRepository.SavingBooksRecord> saveAllBooks
             (@RequestBody Collection<Book> books){
     return ResponseEntity
             .ok(bookService
                     .saveAll(books));
+//    TODO(create a method that converts SavingBooksRecord to John doe)
     }
 
 }

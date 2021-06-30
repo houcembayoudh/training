@@ -1,30 +1,41 @@
 package com.example.training.book.repository;
 
+import com.example.training.book.dtao.BookDtao;
+import com.example.training.book.dtao.DBBookRepositoryDtao;
 import com.example.training.book.exception.*;
 import com.example.training.book.model.Book;
 import io.vavr.control.Either;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+public class DBBookRepository implements BookRepository{
 
-public class InMemoryBookRepository implements BookRepository {
+    private final DBBookRepositoryDtao dbBookRepositoryDtao;
+    public DBBookRepository(DBBookRepositoryDtao dbBookRepositoryDtao){
+        this.dbBookRepositoryDtao = dbBookRepositoryDtao;
+    }
 
-    List<Book> bookList = new ArrayList<>();
 
     @Override
     public Collection<Book> fetchAllBooks() {
 
-        return bookList;
+        return dbBookRepositoryDtao
+                .findAll()
+                .stream()
+                .map(BookDtao::toModel)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
     public Optional<Book> getBookByReference(String reference) {
-        return bookList
-                .stream()
-                .filter(book -> book.getReference().equals(reference))
-                .findFirst();
+        return dbBookRepositoryDtao
+                .findById(reference)
+                .map(BookDtao::toModel);
     }
 
     @Override
@@ -37,52 +48,47 @@ public class InMemoryBookRepository implements BookRepository {
                             containExceptions.get()
                     );
         }
-        bookList.add(book);
+        final var savedBook
+                = dbBookRepositoryDtao
+                .save(new BookDtao(book))
+                .toModel();
         return
                 new BookSavingRecord(
-                        book
+                        savedBook
                 );
     }
 
     @Override
     public Either<BookNotFoundException, Book> updateBook(Book book) {
-       final var bookExist = bookList.stream()
-                .anyMatch(
-                        it -> it
-                                .getReference()
-                                .equals(book.getReference()));
-       if (!bookExist){
-           return  Either.left(new BookNotFoundException(("BookDtao doesn not exist")));
-       }
-        bookList = bookList.stream()
-               .filter(Predicate.not(it -> it.getReference()
-               .equals(book.getReference())))
-               .collect(Collectors.toList());
-        bookList.add(book);
 
-        return Either.right(book);
+        final var bookExist =
+                dbBookRepositoryDtao.existsById(book.getReference());
+
+        if (!bookExist){
+            return  Either.left(new BookNotFoundException(("Book does not exist")));
+        }
+        final var updatedBook =
+                dbBookRepositoryDtao.save(new BookDtao(book)).toModel();
+
+        return Either.right(updatedBook);
     }
 
     @Override
     public Either<BookNotFoundException, Book> deleteBookByReference(String bookReference) {
 
+        final var searchedBook =  dbBookRepositoryDtao.findById(bookReference)
+                .map(BookDtao::toModel);
 
-     final var searchedBook =  bookList.stream()
-              .filter(it -> it.getReference().equals(bookReference))
-              .findFirst();
-
-     searchedBook
-             .ifPresent(
-                     it -> bookList = bookList.stream()
-                     .filter( Predicate.not(book -> book.equals(it)))
-                     .collect(Collectors.toList())
-             );
+        searchedBook
+                .ifPresent(
+                        it -> dbBookRepositoryDtao.deleteById(it.getReference())
+                );
         return searchedBook
                 .<Either<BookNotFoundException, Book>>map(Either::right)
                 .orElseGet(
                         ()
-                        ->
-                        Either.left(new BookNotFoundException("BookDtao not found"))
+                                ->
+                                Either.left(new BookNotFoundException("Book not found"))
                 );
 
     }
@@ -97,7 +103,8 @@ public class InMemoryBookRepository implements BookRepository {
                         .map(this::addBook)// never parallelize this stream, it is not pure
                         .collect(
                                 Collectors.partitioningBy(
-                                        bookSavingRecord -> bookSavingRecord.savingException().isEmpty()
+                                        bookSavingRecord ->
+                                                bookSavingRecord.savingException().isEmpty()
                                 )
                         );
 
@@ -131,7 +138,7 @@ public class InMemoryBookRepository implements BookRepository {
 
     @Override
     public void removeAll() {
-    bookList = new ArrayList<>();
+        dbBookRepositoryDtao.deleteAll();
     }
 
 
@@ -153,23 +160,20 @@ public class InMemoryBookRepository implements BookRepository {
         if (invalidBookName(book.getBookName())) {
             return Optional.ofNullable(
                     new BookNameIsNotValidException
-                            ("Book Name is Either null or empty"));
+                            ("BookDtao Name is Either null or empty"));
         }
         //validReference
         if (invalidBookReference(book.getReference())) {
             return Optional.ofNullable(
                     new BookReferenceIsNotValidException
-                            ("Book Reference is Either null or empty"));
+                            ("BookDtao Reference is Either null or empty"));
         }
         //bookExists
         if (bookAlreadyExists(book)) {
             return Optional.ofNullable(
                     new BookAlreadyExistsException
-                            ("Book Already exists"));
+                            ("BookDtao Already exists"));
         }
         return Optional.empty();
     }
 }
-
-
-

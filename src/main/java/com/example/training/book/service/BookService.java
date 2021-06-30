@@ -1,13 +1,11 @@
 package com.example.training.book.service;
 
-import com.example.training.book.exception.BookException;
 import com.example.training.book.exception.BookNotFoundException;
-import com.example.training.book.model.Book;
 import com.example.training.book.repository.BookRepository;
+import com.example.training.book.model.Book;
 import io.vavr.control.Either;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 

@@ -1,4 +1,4 @@
-package com.example.training.book;
+package com.example.training.book.inmemory;
 
 import com.example.training.book.endpoint.rest.BookEndPoint;
 import com.example.training.book.model.Book;
@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 @SpringBootTest
-public class BookEndPointTestUnit {
+public class InMemoryBookDtaoEndPointTestUnit {
 
     BookEndPoint bookEndPoint;
     @BeforeEach
@@ -189,7 +189,7 @@ public class BookEndPointTestUnit {
 
     @Test
     public void saveAll_insert_collection_of_valid_books_expect_all_saved() {
-        Collection<Book> books =List.of(new Book("Omar", "Bayoudh")
+        List<Book> books =List.of(new Book("Omar", "Bayoudh")
         ,new Book("Omar", "Ben Romdhan")
         ,new Book("Omar", "Octavia")
         ,new Book("Omar", "Sportage"));
@@ -208,7 +208,7 @@ public class BookEndPointTestUnit {
 
     @Test
     public void saveAll_insert_collection_of_valid_books_with_one_duplicate_expect_3_saved_and_1_unsaved() {
-        Collection<Book> books =List.of(new Book("Omar", "Bayoudh")
+        List<Book> books =List.of(new Book("Omar", "Bayoudh")
                 ,new Book("Omar", "Ben Romdhan")
                 ,new Book("Omar", "Octavia")
                 ,new Book("Omar", "Bayoudh"));
@@ -226,7 +226,7 @@ public class BookEndPointTestUnit {
 
     @Test
     public void saveAll_insert_collection_of_valid_books_with_one_invalid_book_expect_3_saved_and_1_unsaved() {
-        Collection<Book> books =List.of(new Book("Omar", "Bayoudh")
+        List<Book> books =List.of(new Book("Omar", "Bayoudh")
                 ,new Book("Omar", "Ben Romdhan")
                 ,new Book("Omar", "Octavia")
                 ,new Book("Omar", ""));
