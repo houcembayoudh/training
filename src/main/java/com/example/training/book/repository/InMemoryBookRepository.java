@@ -46,15 +46,21 @@ public class InMemoryBookRepository implements BookRepository {
 
     @Override
     public Either<BookNotFoundException, Book> updateBook(Book book) {
+       final var bookExist = bookList.stream()
+                .anyMatch(
+                        it -> it
+                                .getReference()
+                                .equals(book.getReference()));
+       if (!bookExist){
+           return  Either.left(new BookNotFoundException(("Book doesn not exist")));
+       }
+        bookList = bookList.stream()
+               .filter(Predicate.not(it -> it.getReference()
+               .equals(book.getReference())))
+               .collect(Collectors.toList());
+        bookList.add(book);
 
-        int indexSearch = bookList.indexOf(book);
-        if (indexSearch != -1) {
-            bookList.set(indexSearch, book);
-            return Either.right(book);
-        } else {
-            return Either.left(new BookNotFoundException("Book not found"));
-        }
-
+        return Either.right(book);
     }
 
     @Override
@@ -125,7 +131,7 @@ public class InMemoryBookRepository implements BookRepository {
 
     @Override
     public void removeAll() {
-
+    bookList = new ArrayList<>();
     }
 
 

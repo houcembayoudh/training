@@ -1,15 +1,13 @@
 package com.example.training.book.endpoint.rest;
 
-import com.example.training.book.exception.BookNotFoundException;
 import com.example.training.book.model.Book;
+import com.example.training.book.repository.BookRepository;
 import com.example.training.book.service.BookService;
-import io.vavr.control.Either;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api")
@@ -38,10 +36,12 @@ public class BookEndPoint {
     @PostMapping("/addBook")
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
 
-       return ResponseEntity.ok(bookService.addBook(book).book());
-
-
-
+        final var result = bookService.addBook(book);
+        if(result.savingException().isPresent()){
+            return ResponseEntity.badRequest().header("error",
+                    result.savingException().get().getMessage()).build();
+        }
+        return ResponseEntity.ok(result.book());
     }
 
     @PutMapping("/updateBook")
@@ -59,12 +59,13 @@ public class BookEndPoint {
                         ResponseEntity::ok
                 );
     }
-/*
-    @DeleteMapping("/deleteBook")
-    public ResponseEntity<Book> deleteBook(@RequestBody Book book) {
+    @DeleteMapping("/deleteBook/{reference}")
+    public ResponseEntity<Book> deleteBookByReference(
+            @RequestParam(required = true, name = "reference")
+                    String reference) {
         return
                 bookService
-                .deleteBook(book)
+                .deleteBookByReference(reference)
                 .fold(
                         it -> ResponseEntity
                                 .badRequest()
@@ -75,7 +76,14 @@ public class BookEndPoint {
                                 .build() ,
                         ResponseEntity::ok
                 ) ;
-    }*/
+    }
 
+    @PostMapping("/saveListOfBooks")
+    public ResponseEntity<BookRepository.SavingBooksRecord> saveAllBooks
+            (@RequestBody Collection<Book> books){
+    return ResponseEntity
+            .ok(bookService
+                    .saveAll(books));
+    }
 
 }

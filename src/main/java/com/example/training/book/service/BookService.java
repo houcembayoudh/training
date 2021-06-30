@@ -7,6 +7,7 @@ import com.example.training.book.repository.BookRepository;
 import io.vavr.control.Either;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -38,6 +39,19 @@ public class BookService {
         return bookRepository.updateBook(book);
     }
 
+
+    public BookRepository.SavingBooksRecord saveAll(Collection<Book> bookList) {
+        return bookRepository.saveAll(bookList);
+    }
+
+    public Either<BookNotFoundException, Book> deleteBookByReference(String bookReference) {
+        return bookRepository.deleteBookByReference(bookReference);
+    }
+
+
+    public void removeAll() {
+        bookRepository.removeAll();
+    }
 
 
 }
